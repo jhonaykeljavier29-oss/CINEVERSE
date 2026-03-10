@@ -1,0 +1,154 @@
+<div class="person-profile" *ngIf="!loading && person; else loadingTemplate">
+  
+  <!-- Hero Section -->
+  <section class="person-hero" [style.backgroundImage]="'url(' + getProfileUrl() + ')'">
+    <div class="hero-overlay"></div>
+    
+    <div class="hero-content container">
+      <div class="hero-image">
+        <img [src]="getProfileUrl()" [alt]="person.name">
+        <div class="image-glow"></div>
+      </div>
+      
+      <div class="hero-info">
+        <h1 class="person-name gradient-text">{{ person.name }}</h1>
+        
+        <div class="person-badges">
+          <span class="badge">{{ person.known_for_department || 'Artista' }}</span>
+          <span class="badge" *ngIf="getAge()">{{ getAge() }} años</span>
+        </div>
+        
+        <div class="person-meta">
+          <div class="meta-item" *ngIf="person.birthday">
+            <span class="meta-label">Nacimiento:</span>
+            <span class="meta-value">{{ getBirthInfo() }}</span>
+          </div>
+          
+          <div class="meta-item" *ngIf="person.deathday">
+            <span class="meta-label">Fallecimiento:</span>
+            <span class="meta-value">{{ getDeathInfo() }}</span>
+          </div>
+          
+          <div class="meta-item" *ngIf="person.homepage">
+            <span class="meta-label">Sitio web:</span>
+            <a [href]="person.homepage" target="_blank" class="meta-link">{{ person.homepage }}</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Navegación de pestañas -->
+  <div class="tab-navigation container">
+    <button 
+      class="tab-btn" 
+      [class.active]="activeTab === 'bio'"
+      (click)="setActiveTab('bio')"
+    >
+      Biografía
+    </button>
+    <button 
+      class="tab-btn" 
+      [class.active]="activeTab === 'movies'"
+      (click)="setActiveTab('movies')"
+    >
+      Filmografía
+    </button>
+    <button 
+      class="tab-btn" 
+      [class.active]="activeTab === 'images'"
+      (click)="setActiveTab('images')"
+      *ngIf="images.length > 0"
+    >
+      Fotos ({{ images.length }})
+    </button>
+  </div>
+
+  <!-- Contenido de pestañas -->
+  <div class="tab-content container">
+    
+    <!-- BIOGRAFÍA -->
+    <div class="tab-pane" *ngIf="activeTab === 'bio'">
+      <div class="bio-content">
+        <h2 class="bio-title">Biografía</h2>
+        <p class="bio-text">{{ person.biography || 'No hay biografía disponible para esta persona.' }}</p>
+      </div>
+      
+      <!-- Conocido por -->
+      <div class="known-for-section" *ngIf="getKnownFor().length > 0">
+        <h3 class="section-title">Más conocido por</h3>
+        <div class="known-for-grid">
+          <app-film-card 
+            *ngFor="let movie of getKnownFor()" 
+            [film]="movie"
+          ></app-film-card>
+        </div>
+      </div>
+    </div>
+
+    <!-- FILMOGRAFÍA -->
+    <div class="tab-pane" *ngIf="activeTab === 'movies'">
+      <div class="filmography">
+        
+        <!-- Como actor/actriz -->
+        <div class="filmography-section" *ngIf="movieCredits?.cast?.length">
+          <h3 class="filmography-title">Como Actor/Actriz</h3>
+          <div class="filmography-list">
+            <div class="filmography-item" *ngFor="let movie of movieCredits.cast">
+              <div class="item-year">{{ getYear(movie.release_date) }}</div>
+              <div class="item-info">
+                <a [routerLink]="['/pelicula', movie.id]" class="item-title">
+                  {{ movie.title }}
+                </a>
+                <span class="item-character" *ngIf="movie.character">
+                  como {{ movie.character }}
+                </span>
+              </div>
+              <div class="item-rating" *ngIf="movie.vote_average">
+                ★ {{ movie.vote_average | number:'1.1-1' }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Como director/productor (si aplica) -->
+        <div class="filmography-section" *ngIf="movieCredits?.crew?.length">
+          <h3 class="filmography-title">Como Director/Equipo</h3>
+          <div class="filmography-list">
+            <div class="filmography-item" *ngFor="let movie of movieCredits.crew">
+              <div class="item-year">{{ getYear(movie.release_date) }}</div>
+              <div class="item-info">
+                <a [routerLink]="['/pelicula', movie.id]" class="item-title">
+                  {{ movie.title }}
+                </a>
+                <span class="item-character">
+                  {{ movie.job }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- IMÁGENES -->
+    <div class="tab-pane" *ngIf="activeTab === 'images'">
+      <div class="images-grid">
+        <div class="image-item" *ngFor="let image of images">
+          <img [src]="getThumbnailUrl(image.file_path)" [alt]="person.name">
+          <div class="image-overlay"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Loading Template -->
+<ng-template #loadingTemplate>
+  <div class="loading-container">
+    <div class="loading-spinner"></div>
+    <p>Cargando información...</p>
+  </div>
+</ng-template>

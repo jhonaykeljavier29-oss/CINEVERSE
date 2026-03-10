@@ -1,0 +1,204 @@
+<!-- CONTENEDOR PRINCIPAL -->
+<div class="film-detail" *ngIf="!loading && movie; else loadingTemplate">
+  
+  <!-- ===== HERO SECTION CON BACKDROP ===== -->
+  <section class="detail-hero" [style.backgroundImage]="'url(' + getBackdropUrl() + ')'">
+    <div class="hero-overlay"></div>
+    
+    <div class="hero-content container">
+      
+      <!-- PÓSTER -->
+      <div class="hero-poster">
+        <img [src]="getPosterUrl()" [alt]="movie.title" class="poster-image">
+        <div class="poster-glow"></div>
+      </div>
+      
+      <!-- INFORMACIÓN PRINCIPAL -->
+      <div class="hero-info">
+        <h1 class="movie-title">{{ movie.title }}</h1>
+        
+        <div class="movie-tagline" *ngIf="movie.tagline">"{{ movie.tagline }}"</div>
+        
+        <div class="movie-meta">
+          <span class="meta-item">{{ getYear() }}</span>
+          <span class="meta-separator">•</span>
+          <span class="meta-item">{{ getGenres() }}</span>
+          <span class="meta-separator">•</span>
+          <span class="meta-item">{{ getRuntime() }}</span>
+        </div>
+        
+        <!-- RATING -->
+        <div class="movie-rating">
+          <div class="rating-circle" [style.background]="'conic-gradient(gold ' + getRatingPercentage() + '%, rgba(255,255,255,0.1) 0)'">
+            <span class="rating-value">{{ getRating() }}</span>
+          </div>
+          <div class="rating-text">
+            <span class="rating-label">Puntuación</span>
+            <span class="rating-max">/10</span>
+          </div>
+        </div>
+        
+        <!-- BOTONES DE ACCIÓN -->
+        <div class="movie-actions">
+          <button *ngIf="videos.length > 0" 
+                  class="action-btn action-btn--primary"
+                  (click)="openTrailer(videos[0])">
+            <span class="btn-icon">▶</span>
+            Ver Tráiler
+          </button>
+          
+          <button class="action-btn action-btn--secondary" 
+                  (click)="toggleWatchlist()"
+                  [class.active]="isInWatchlist">
+            <span class="btn-icon">{{ isInWatchlist ? '✓' : '+' }}</span>
+            {{ isInWatchlist ? 'En Mi Lista' : 'Mi Lista' }}
+          </button>
+        </div>
+
+        <!-- DIRECTOR -->
+        <div class="movie-director" *ngIf="getDirector() !== 'Desconocido'">
+          <span class="director-label">Dirigida por:</span>
+          <span class="director-name">{{ getDirector() }}</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== MENSAJE FLOTANTE ===== -->
+  <div class="floating-message" *ngIf="showMessage">
+    {{ listMessage }}
+  </div>
+
+  <!-- ===== NAVEGACIÓN DE PESTAÑAS ===== -->
+  <div class="tab-navigation container">
+    <button class="tab-btn" [class.active]="activeTab === 'info'" (click)="activeTab = 'info'">
+      Información
+    </button>
+    <button class="tab-btn" [class.active]="activeTab === 'cast'" (click)="activeTab = 'cast'">
+      Reparto ({{ credits?.cast?.length || 0 }})
+    </button>
+    <button class="tab-btn" [class.active]="activeTab === 'videos'" (click)="activeTab = 'videos'">
+      Videos ({{ videos.length }})
+    </button>
+    <button class="tab-btn" [class.active]="activeTab === 'similar'" (click)="activeTab = 'similar'">
+      Similares
+    </button>
+  </div>
+
+  <!-- ===== CONTENIDO DE PESTAÑAS ===== -->
+  <div class="tab-content container">
+    
+    <!-- PESTAÑA DE INFORMACIÓN -->
+    <div class="tab-pane" *ngIf="activeTab === 'info'">
+      <div class="info-grid">
+        
+        <div class="info-main">
+          <h2 class="info-title">Sinopsis</h2>
+          <p class="movie-overview">{{ movie.overview || 'Sinopsis no disponible' }}</p>
+          
+          <div class="info-details">
+            <div class="detail-item" *ngIf="movie.budget > 0">
+              <span class="detail-label">Presupuesto:</span>
+              <span class="detail-value">{{ formatCurrency(movie.budget) }}</span>
+            </div>
+            
+            <div class="detail-item" *ngIf="movie.revenue > 0">
+              <span class="detail-label">Recaudación:</span>
+              <span class="detail-value">{{ formatCurrency(movie.revenue) }}</span>
+            </div>
+            
+            <div class="detail-item">
+              <span class="detail-label">Idioma original:</span>
+              <span class="detail-value">{{ movie.original_language | uppercase }}</span>
+            </div>
+            
+            <div class="detail-item">
+              <span class="detail-label">Estado:</span>
+              <span class="detail-value">{{ movie.status }}</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="info-sidebar">
+          <h3 class="sidebar-title">Producción</h3>
+          <div class="companies-list">
+            <div class="company-item" *ngFor="let company of movie.production_companies?.slice(0, 5)">
+              {{ company.name }}
+            </div>
+          </div>
+        </div>
+        
+      </div>
+    </div>
+
+    <!-- PESTAÑA DE REPARTO -->
+    <div class="tab-pane" *ngIf="activeTab === 'cast'">
+      <div class="cast-grid">
+        <div class="cast-card" *ngFor="let actor of getCast()" [routerLink]="['/persona', actor.id]">
+          <div class="cast-image">
+            <img [src]="getProfileUrl(actor.profile_path)" [alt]="actor.name">
+            <div class="cast-overlay"></div>
+          </div>
+          <div class="cast-info">
+            <h4 class="cast-name">{{ actor.name }}</h4>
+            <p class="cast-character">{{ actor.character }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PESTAÑA DE VIDEOS -->
+    <div class="tab-pane" *ngIf="activeTab === 'videos'">
+      <div class="videos-grid">
+        <div class="video-card" *ngFor="let video of videos" (click)="openTrailer(video)">
+          <div class="video-thumbnail">
+            <img [src]="'https://img.youtube.com/vi/' + video.key + '/mqdefault.jpg'" [alt]="video.name">
+            <div class="play-overlay">▶</div>
+          </div>
+          <div class="video-info">
+            <h4 class="video-name">{{ video.name }}</h4>
+            <span class="video-type">{{ video.type }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PESTAÑA DE SIMILARES -->
+    <div class="tab-pane" *ngIf="activeTab === 'similar'">
+      <div class="similar-grid">
+        <div class="similar-card" *ngFor="let movie of similarMovies" [routerLink]="['/pelicula', movie.id]">
+          <div class="similar-poster">
+            <img [src]="'https://image.tmdb.org/t/p/w200' + movie.poster_path" [alt]="movie.title">
+          </div>
+          <div class="similar-info">
+            <h4 class="similar-title">{{ movie.title }}</h4>
+            <span class="similar-rating">★ {{ movie.vote_average | number:'1.1-1' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+</div>
+
+<!-- ===== MODAL DEL TRÁILER ===== -->
+<div class="trailer-modal" *ngIf="showTrailerModal" (click)="closeTrailer()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <button class="close-button" (click)="closeTrailer()">✕</button>
+    <div class="video-container" *ngIf="selectedVideo">
+      <iframe [src]="selectedVideo" 
+              frameborder="0" 
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+              allowfullscreen>
+      </iframe>
+    </div>
+  </div>
+</div>
+
+<!-- ===== LOADING TEMPLATE ===== -->
+<ng-template #loadingTemplate>
+  <div class="loading-container">
+    <div class="loading-spinner"></div>
+    <p>Cargando información de la película...</p>
+  </div>
+</ng-template>

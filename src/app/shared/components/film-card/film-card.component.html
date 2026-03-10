@@ -1,0 +1,34 @@
+<div class="film-card" [class.film-card--horizontal]="isHorizontal">
+  <div class="film-card__inner" [style.transform]="tiltTransform">
+    
+    <!-- Poster -->
+    <div class="film-card__poster">
+      <img [src]="getPosterUrl()" [alt]="getFilmTitle()" loading="lazy">
+      <div class="film-card__gloss"></div>
+      <div class="film-card__gradient-overlay"></div>
+    </div>
+    
+    <!-- Info -->
+    <div class="film-card__info">
+      <h3 class="film-card__title">{{ getFilmTitle() }}</h3>
+      
+      <div class="film-card__meta">
+        <span class="film-card__rating">
+          <span class="rating-star">★</span>
+          {{ film.vote_average | number:'1.1-1' }}
+        </span>
+        <span class="film-card__year">{{ getFilmYear() }}</span>
+      </div>
+      
+      <p class="film-card__overview">
+        {{ film.overview ? (film.overview | slice:0:100) + '...' : 'Sinopsis no disponible' }}
+      </p>
+    </div>
+    
+    <!-- Enlace (oculto pero accesible) -->
+    <a [routerLink]="['/pelicula', film.id]" class="film-card__link">
+      <span class="sr-only">Ver detalles de {{ getFilmTitle() }}</span>
+    </a>
+    
+  </div>
+</div>

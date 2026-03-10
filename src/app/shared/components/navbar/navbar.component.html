@@ -1,0 +1,37 @@
+<nav class="navbar">
+  <div class="navbar-container">
+    <a routerLink="/" class="navbar-logo">CINEVERSE</a>
+
+    <div class="navbar-menu">
+      <a routerLink="/descubrir" routerLinkActive="active">Descubrir</a>
+      <a routerLink="/buscar" routerLinkActive="active">Buscar</a>
+      
+      <!-- Menú de usuario (solo si está logueado) -->
+      <ng-container *ngIf="authService.isLoggedIn()">
+        <a routerLink="/mis-listas" routerLinkActive="active">Mis Listas</a>
+        
+        <div class="user-menu">
+          <button class="user-button" (click)="toggleUserMenu()">
+            <img [src]="authService.getCurrentUser()?.avatar" 
+                 [alt]="authService.getCurrentUser()?.name"
+                 class="user-avatar">
+            <span>{{ authService.getCurrentUser()?.name }}</span>
+          </button>
+          
+          <div class="user-dropdown" *ngIf="showUserMenu">
+            <a routerLink="/perfil">Mi Perfil</a>
+            <a routerLink="/mis-listas">Mis Listas</a>
+            <button (click)="logout()">Cerrar Sesión</button>
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- Botón login (si no está logueado) -->
+      <a *ngIf="!authService.isLoggedIn()" 
+         routerLink="/login" 
+         class="login-button">
+        Iniciar Sesión
+      </a>
+    </div>
+  </div>
+</nav>

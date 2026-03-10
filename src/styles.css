@@ -1,1 +1,169 @@
-/* You can add global styles to this file, and also import other style files */
+/* ----------------------------------------------
+   TOKENS DE DISEÑO y RESET
+   ---------------------------------------------- */
+:root {
+  --color-space: #0a0c0f;
+  --color-neon-primary: #b146f0;
+  --color-neon-secondary: #00e0ff;
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #b0b8c5;
+  --color-glass-bg: rgba(255, 255, 255, 0.03);
+  --color-glass-border: rgba(255, 255, 255, 0.05);
+
+  --font-display: 'Clash Display', sans-serif;
+  --font-body: 'Outfit', sans-serif;
+  --font-detail: 'Poppins', sans-serif;
+
+  --easing-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --easing-decelerate: cubic-bezier(0, 0, 0.2, 1);
+  --easing-accelerate: cubic-bezier(0.4, 0, 1, 1);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-space);
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* Efecto de "Cine Mode" - Grano de película sutil */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: repeating-radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.02) 0px, transparent 2px);
+  pointer-events: none;
+  opacity: 0.15;
+  z-index: 9999;
+  mix-blend-mode: overlay;
+  animation: grain 8s steps(10) infinite;
+}
+
+@keyframes grain {
+  0%, 100% { transform: translate(0, 0); }
+  10% { transform: translate(-1%, -1%); }
+  20% { transform: translate(1%, 1%); }
+  30% { transform: translate(-2%, 1%); }
+  40% { transform: translate(2%, -1%); }
+  50% { transform: translate(-1%, 2%); }
+  60% { transform: translate(1%, -2%); }
+  70% { transform: translate(-2%, -1%); }
+  80% { transform: translate(2%, 1%); }
+  90% { transform: translate(-1%, 1%); }
+}
+
+/* Scrollbar personalizada (Neon) */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-space);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-neon-primary);
+  border-radius: 4px;
+  box-shadow: 0 0 10px var(--color-neon-primary);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-neon-secondary);
+  box-shadow: 0 0 15px var(--color-neon-secondary);
+}
+
+/* ----------------------------------------------
+   UTILIDADES Y ANIMACIONES GLOBALES
+   ---------------------------------------------- */
+.gradient-text {
+  background: linear-gradient(135deg, var(--color-neon-primary), var(--color-neon-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradient-shift 6s var(--easing-standard) infinite alternate;
+  background-size: 200% 200%;
+}
+
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+}
+
+/* Skeletons animados */
+.skeleton {
+  background: linear-gradient(90deg, #1a1c20 25%, #2a2c30 50%, #1a1c20 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+  border-radius: 8px;
+}
+
+@keyframes loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Contenedor principal */
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* Cortinilla entre secciones */
+.curtain-transition {
+  position: relative;
+  overflow: hidden;
+}
+
+.curtain-transition::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    var(--color-neon-primary) 20%, 
+    var(--color-neon-secondary) 50%, 
+    var(--color-neon-primary) 80%, 
+    transparent 100%);
+  transform: translateX(-100%);
+  animation: curtain-open 1.5s var(--easing-decelerate) forwards;
+  opacity: 0.1;
+  pointer-events: none;
+  z-index: 10;
+}
+/* En styles.css */
+:root {
+  --mouse-x: 50%;
+  --mouse-y: 50%;
+}
+
+.hero__backdrop {
+  background: radial-gradient(
+    circle at var(--mouse-x) var(--mouse-y),
+    rgba(177, 70, 240, 0.2) 0%,
+    rgba(0, 224, 255, 0.1) 30%,
+    var(--color-space) 60%
+  );
+}
+@keyframes curtain-open {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}

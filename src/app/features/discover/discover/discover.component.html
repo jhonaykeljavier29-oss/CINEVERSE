@@ -1,0 +1,148 @@
+<div class="discover-container">
+  
+  <!-- Header -->
+  <div class="discover-header">
+    <h1 class="page-title">Descubrir Películas</h1>
+    <button class="filter-button" (click)="toggleFilters()">
+      <span class="filter-icon">⚙️</span>
+      {{ showFilters ? 'Ocultar Filtros' : 'Mostrar Filtros' }}
+    </button>
+  </div>
+
+  <!-- Panel de filtros -->
+  <div class="filters-panel" [class.show]="showFilters">
+    <div class="filters-grid">
+      
+      <!-- Género -->
+      <div class="filter-item">
+        <label>Género</label>
+        <select [(ngModel)]="filters.with_genres">
+          <option value="">Todos los géneros</option>
+          <option *ngFor="let genre of genres" [value]="genre.id">
+            {{ genre.name }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Ordenar -->
+      <div class="filter-item">
+        <label>Ordenar por</label>
+        <select [(ngModel)]="filters.sort_by">
+          <option *ngFor="let option of sortOptions" [value]="option.value">
+            {{ option.label }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Año -->
+      <div class="filter-item">
+        <label>Año</label>
+        <select [(ngModel)]="selectedYear">
+          <option value="">Todos los años</option>
+          <option *ngFor="let year of years" [value]="year">
+            {{ year }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Idioma -->
+      <div class="filter-item">
+        <label>Idioma</label>
+        <select [(ngModel)]="filters.with_original_language">
+          <option *ngFor="let lang of languages" [value]="lang.code">
+            {{ lang.name }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Puntuación mínima -->
+      <div class="filter-item">
+        <label>Puntuación mínima</label>
+        <input type="number" [(ngModel)]="filters['vote_average.gte']" min="0" max="10" step="0.5">
+      </div>
+
+      <!-- Puntuación máxima -->
+      <div class="filter-item">
+        <label>Puntuación máxima</label>
+        <input type="number" [(ngModel)]="filters['vote_average.lte']" min="0" max="10" step="0.5">
+      </div>
+    </div>
+
+    <div class="filter-actions">
+      <button class="apply-button" (click)="applyFilters()">Aplicar Filtros</button>
+      <button class="reset-button" (click)="resetFilters()">Resetear</button>
+    </div>
+  </div>
+
+  <!-- Mensaje de error -->
+  <div class="error-message" *ngIf="errorMessage">
+    {{ errorMessage }}
+  </div>
+
+  <!-- Grid de películas - CON ENLACES FUNCIONALES -->
+  <div class="movies-grid" *ngIf="!loading; else loadingTemplate">
+    
+    <!-- CADA TARJETA ES CLICABLE Y LLEVA AL DETALLE -->
+    <div class="movie-card" 
+         *ngFor="let movie of movies; trackBy: trackByMovieId"
+         [routerLink]="['/pelicula', movie.id]"
+         style="cursor: pointer;">
+      
+      <div class="movie-poster">
+        <img [src]="'https://image.tmdb.org/t/p/w500' + movie.poster_path" 
+             [alt]="movie.title"
+             onerror="this.src='https://via.placeholder.com/500x750?text=No+Image'">
+      </div>
+      
+      <div class="movie-info">
+        <h3 class="movie-title">{{ movie.title }}</h3>
+        <div class="movie-meta">
+          <span class="rating">★ {{ movie.vote_average | number:'1.1-1' }}</span>
+          <span class="year">{{ movie.release_date | date:'yyyy' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mensaje sin resultados -->
+    <div class="no-results" *ngIf="movies.length === 0 && !loading">
+      No se encontraron películas
+    </div>
+  </div>
+
+  <!-- Loading template -->
+  <ng-template #loadingTemplate>
+    <div class="movies-grid">
+      <div class="skeleton-card" *ngFor="let i of [1,2,3,4,5,6,7,8]">
+        <div class="skeleton-poster"></div>
+        <div class="skeleton-title"></div>
+        <div class="skeleton-meta"></div>
+      </div>
+    </div>
+  </ng-template>
+
+  <!-- Paginación -->
+  <div class="pagination" *ngIf="!loading && movies.length > 0">
+    <button class="page-button" [disabled]="currentPage === 1" (click)="prevPage()">
+      ← Anterior
+    </button>
+    
+    <div class="page-numbers">
+      <button 
+        *ngFor="let page of getPagesArray()"
+        class="page-number"
+        [class.active]="page === currentPage"
+        (click)="goToPage(page)"
+      >
+        {{ page }}
+      </button>
+    </div>
+    
+    <button class="page-button" [disabled]="currentPage === totalPages" (click)="nextPage()">
+      Siguiente →
+    </button>
+  </div>
+
+  <div class="page-info" *ngIf="!loading && movies.length > 0">
+    Página {{ currentPage }} de {{ totalPages }}
+  </div>
+</div>

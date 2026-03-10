@@ -1,0 +1,120 @@
+<div class="search-page">
+  
+  <!-- Hero de búsqueda -->
+  <div class="search-hero">
+    <h1 class="search-title gradient-text">Buscador Inteligente</h1>
+    <p class="search-subtitle">Encuentra películas, series y personas en nuestro universo cinematográfico</p>
+    
+    <!-- Barra de búsqueda -->
+    <div class="search-bar-container">
+      <div class="search-bar">
+        <span class="search-icon">🔍</span>
+        <input 
+          type="text" 
+          class="search-input" 
+          placeholder="Buscar películas, series, actores..."
+          [(ngModel)]="searchQuery"
+          (input)="onSearchInput()"
+          [class.loading]="loading"
+        >
+        <button 
+          class="search-clear" 
+          *ngIf="searchQuery"
+          (click)="clearSearch()"
+        >
+          ✕
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Resultados -->
+  <div class="search-results">
+    
+    <!-- Loading -->
+    <div class="loading-container" *ngIf="loading">
+      <div class="loading-spinner"></div>
+      <p>Buscando...</p>
+    </div>
+
+    <!-- Sin resultados -->
+    <div class="no-results" *ngIf="!loading && searchPerformed && searchResults.length === 0">
+      <p>No se encontraron resultados para "{{ searchQuery }}"</p>
+      <p class="no-results-hint">Prueba con otros términos o revisa la ortografía</p>
+    </div>
+
+    <!-- Resultados encontrados -->
+    <div class="results-container" *ngIf="!loading && searchResults.length > 0">
+      
+      <!-- Categorías -->
+      <div class="result-categories">
+        <button 
+          class="category-btn" 
+          [class.active]="activeCategory === 'all'"
+          (click)="setActiveCategory('all')"
+        >
+          Todos ({{ searchResults.length }})
+        </button>
+        <button 
+          class="category-btn" 
+          [class.active]="activeCategory === 'movies'"
+          (click)="setActiveCategory('movies')"
+          *ngIf="movies.length > 0"
+        >
+          Películas ({{ movies.length }})
+        </button>
+        <button 
+          class="category-btn" 
+          [class.active]="activeCategory === 'people'"
+          (click)="setActiveCategory('people')"
+          *ngIf="people.length > 0"
+        >
+          Personas ({{ people.length }})
+        </button>
+        <button 
+          class="category-btn" 
+          [class.active]="activeCategory === 'tv'"
+          (click)="setActiveCategory('tv')"
+          *ngIf="tvShows.length > 0"
+        >
+          Series ({{ tvShows.length }})
+        </button>
+      </div>
+
+      <!-- Grid de resultados -->
+      <div class="results-grid">
+        
+        <!-- Películas y Series (usando FilmCard) -->
+        <ng-container *ngFor="let item of getDisplayedResults()">
+          
+          <!-- Tarjeta para películas/series -->
+          <app-film-card 
+            *ngIf="item.media_type !== 'person'"
+            [film]="item"
+          ></app-film-card>
+          
+          <!-- Tarjeta para personas (diseño especial) -->
+          <div class="person-card" *ngIf="item.media_type === 'person'" [routerLink]="getItemLink(item)">
+            <div class="person-image">
+              <img [src]="getProfileUrl(item.profile_path)" [alt]="item.name">
+              <div class="person-overlay"></div>
+            </div>
+            <div class="person-info">
+              <h3 class="person-name">{{ item.name }}</h3>
+              <p class="person-known-for">
+                {{ item.known_for_department || 'Actor/Actriz' }}
+              </p>
+              <div class="person-movies" *ngIf="item.known_for?.length">
+                <span class="known-for-label">Conocido por:</span>
+                <span class="known-for-titles">
+                  {{ item.known_for | slice:0:3 | map:'title || name' | join:', ' }}
+                </span>
+              </div>
+            </div>
+          </div>
+          
+        </ng-container>
+      </div>
+    </div>
+  </div>
+</div>

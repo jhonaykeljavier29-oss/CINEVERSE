@@ -1,14 +1,14 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';  // ← Añadir HostListener aquí
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { TmdbService } from '../../core/services/tmdb.service';
-import { FilmCardComponent } from '../../shared/components/film-card/film-card.component';
-import { SkeletonLoaderComponent } from '../../shared/components/skeleton-loader/skeleton-loader.component';
+import { TmdbService } from '../../../core/services/tmdb.service';
+import { FilmCardComponent } from '../../../shared/components/film-card/film-card.component';
+import { SkeletonLoaderComponent } from '../../../shared/components/skeleton-loader/skeleton-loader.component';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, RouterLink, FilmCardComponent, SkeletonLoaderComponent],
+  imports: [CommonModule, RouterLink, ],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
 })
@@ -32,6 +32,14 @@ export class HomeComponent implements OnInit {
     this.loadTrendingMovies();
     this.loadTopRatedMovies();
     this.loadHiddenGems();
+  }
+
+  @HostListener('mousemove', ['$event'])
+  onMouseMove(event: MouseEvent) {
+    const x = (event.clientX / window.innerWidth) * 100;
+    const y = (event.clientY / window.innerHeight) * 100;
+    document.documentElement.style.setProperty('--mouse-x', `${x}%`);
+    document.documentElement.style.setProperty('--mouse-y', `${y}%`);
   }
 
   loadUpcomingMovies(): void {
@@ -76,7 +84,6 @@ export class HomeComponent implements OnInit {
   loadHiddenGems(): void {
     this.tmdbService.getTopRatedMovies().subscribe({
       next: (data) => {
-        // Filtrar películas con baja popularidad (joyas ocultas)
         this.hiddenGems = data.results
           .filter((movie: any) => movie.popularity < 30)
           .slice(0, 8);

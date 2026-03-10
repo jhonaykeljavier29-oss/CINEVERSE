@@ -1,0 +1,190 @@
+<div class="my-lists">
+  
+  <!-- Header -->
+  <div class="lists-header">
+    <h1 class="page-title gradient-text">Mis Listas</h1>
+    <button class="create-list-btn" (click)="showCreateModal = true">
+      <span class="btn-icon">+</span>
+      Crear Nueva Lista
+    </button>
+  </div>
+
+  <div class="lists-container">
+    
+    <!-- Sidebar con listas -->
+    <div class="lists-sidebar">
+      <h2 class="sidebar-title">Tus Listas</h2>
+      
+      <div class="lists-nav">
+        <div 
+          class="list-nav-item" 
+          *ngFor="let list of lists"
+          [class.active]="selectedList?.id === list.id"
+          (click)="selectList(list)"
+        >
+          <div class="list-info">
+            <span class="list-name">{{ list.name }}</span>
+            <span class="list-count">{{ getListCount(list) }} películas</span>
+          </div>
+          <button class="list-delete" (click)="deleteList(list.id); $event.stopPropagation()">
+            ✕
+          </button>
+        </div>
+      </div>
+
+      <div class="recent-section" *ngIf="getRecentLists().length > 0">
+        <h3 class="recent-title">Recientes</h3>
+        <div class="recent-lists">
+          <div class="recent-item" *ngFor="let list of getRecentLists()" (click)="selectList(list)">
+            <span class="recent-name">{{ list.name }}</span>
+            <span class="recent-count">{{ getListCount(list) }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contenido principal (lista seleccionada) -->
+    <div class="lists-content" *ngIf="selectedList; else noListSelected">
+      
+      <div class="list-header">
+        <div class="list-title-section">
+          <h2 class="list-title">{{ selectedList.name }}</h2>
+          <span class="list-visibility" [class.public]="selectedList.isPublic">
+            {{ selectedList.isPublic ? 'Pública' : 'Privada' }}
+          </span>
+        </div>
+        
+        <p class="list-description" *ngIf="selectedList.description">
+          {{ selectedList.description }}
+        </p>
+
+        <div class="list-actions">
+          <button class="action-btn action-btn--primary" (click)="openAddMovieModal()">
+            <span class="btn-icon">+</span>
+            Agregar Película
+          </button>
+          <button class="action-btn action-btn--secondary" (click)="deleteList(selectedList.id)">
+            Eliminar Lista
+          </button>
+        </div>
+      </div>
+
+      <!-- Grid de películas -->
+      <div class="movies-grid" *ngIf="selectedList.movies.length > 0; else emptyList">
+        <div class="movie-card-wrapper" *ngFor="let movie of selectedList.movies">
+          <app-film-card [film]="movie"></app-film-card>
+          <button class="remove-movie" (click)="removeFromList(selectedList.id, movie.id)" title="Quitar de la lista">
+            ✕
+          </button>
+        </div>
+      </div>
+
+      <ng-template #emptyList>
+        <div class="empty-list">
+          <p>Esta lista está vacía</p>
+          <button class="add-first-btn" (click)="openAddMovieModal()">
+            Agregar tu primera película
+          </button>
+        </div>
+      </ng-template>
+
+    </div>
+
+    <ng-template #noListSelected>
+      <div class="no-list-selected">
+        <p>Selecciona una lista o crea una nueva para comenzar</p>
+      </div>
+    </ng-template>
+
+  </div>
+
+  <!-- Modal Crear Lista -->
+  <div class="modal" *ngIf="showCreateModal" (click)="closeCreateModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <h2 class="modal-title">Crear Nueva Lista</h2>
+      
+      <div class="form-group">
+        <label for="listName">Nombre de la lista</label>
+        <input 
+          type="text" 
+          id="listName" 
+          class="form-input"
+          [(ngModel)]="newList.name"
+          placeholder="Ej: Películas de culto"
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="listDescription">Descripción (opcional)</label>
+        <textarea 
+          id="listDescription" 
+          class="form-textarea"
+          [(ngModel)]="newList.description"
+          placeholder="¿De qué trata esta lista?"
+          rows="3"
+        ></textarea>
+      </div>
+
+      <div class="form-group checkbox-group">
+        <label>
+          <input type="checkbox" [(ngModel)]="newList.isPublic">
+          Hacer lista pública
+        </label>
+        <span class="checkbox-hint">Las listas públicas pueden ser vistas por otros usuarios</span>
+      </div>
+
+      <div class="modal-actions">
+        <button class="modal-btn modal-btn--cancel" (click)="closeCreateModal()">
+          Cancelar
+        </button>
+        <button 
+          class="modal-btn modal-btn--create" 
+          (click)="createList()"
+          [disabled]="!newList.name?.trim()"
+        >
+          Crear Lista
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Agregar Película -->
+  <div class="modal" *ngIf="showAddMovieModal" (click)="closeAddMovieModal()">
+    <div class="modal-content modal-lg" (click)="$event.stopPropagation()">
+      <h2 class="modal-title">Agregar Película a "{{ selectedList?.name }}"</h2>
+      
+      <div class="search-section">
+        <div class="search-bar">
+          <input 
+            type="text" 
+            class="search-input"
+            placeholder="Buscar películas..."
+            [(ngModel)]="searchQuery"
+            (keyup.enter)="searchMovies()"
+          >
+          <button class="search-btn" (click)="searchMovies()" [disabled]="searching">
+            Buscar
+          </button>
+        </div>
+
+        <div class="search-results" *ngIf="searchResults.length > 0">
+          <div class="search-result-item" *ngFor="let movie of searchResults">
+            <div class="result-info">
+              <span class="result-title">{{ movie.title }}</span>
+              <span class="result-year">{{ movie.release_date | date:'yyyy' }}</span>
+            </div>
+            <button class="add-btn" (click)="addMovieToList(movie)">
+              Agregar
+            </button>
+          </div>
+        </div>
+
+        <div class="search-loading" *ngIf="searching">
+          Buscando...
+        </div>
+      </div>
+
+      <button class="modal-close" (click)="closeAddMovieModal()">✕</button>
+    </div>
+  </div>
+</div>

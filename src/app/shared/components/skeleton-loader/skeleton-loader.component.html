@@ -1,0 +1,15 @@
+<div class="skeleton-container">
+  <ng-container *ngFor="let item of getArray(count); let i = index">
+    <div 
+      class="skeleton-item"
+      [class.skeleton-card]="type === 'card'"
+      [class.skeleton-text]="type === 'text'"
+      [class.skeleton-circle]="type === 'circle'"
+      [class.skeleton-rectangle]="type === 'rectangle'"
+      [style.width]="width"
+      [style.height]="height"
+    >
+      <div class="skeleton-shine"></div>
+    </div>
+  </ng-container>
+</div>
