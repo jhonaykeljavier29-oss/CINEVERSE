@@ -1,0 +1,16 @@
+{
+  "rewrites": [{ "source": "/(.*)", "destination": "/" }],
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist/cineverse/browser",
+  "devCommand": "npm run start",
+  "installCommand": "npm install",
+  "functions": {
+    "api/**/*": {
+      "memory": 1024,
+      "maxDuration": 10
+    }
+  },
+  "github": {
+    "silent": true
+  }
+}
