@@ -36,6 +36,21 @@ ng build
 
 This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
 
+## TMDB API Key
+
+This application requires a valid [TMDB](https://www.themoviedb.org) API key to fetch movie
+and person data. Update `src/environments/environment.ts` and
+`src/environments/environment.development.ts` with your own key:
+
+```ts
+export const environment = {
+  production: false,
+  tmdbApiKey: 'YOUR_API_KEY',
+  tmdbBaseUrl: 'https://api.themoviedb.org/3',
+  tmdbImageBaseUrl: 'https://image.tmdb.org/t/p/'
+};
+```
+
 ## Running unit tests
 
 To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
