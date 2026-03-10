@@ -1,9 +1,16 @@
-﻿{
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/" }
-  ],
+﻿# Eliminar el archivo corrupto
+Remove-Item vercel.json -Force
+
+# Crear uno nuevo con el contenido correcto
+@'
+{
+  "rewrites": [{ "source": "/(.*)", "destination": "/" }],
   "buildCommand": "npm run build",
   "outputDirectory": "dist/cineverse/browser",
   "devCommand": "npm run start",
   "installCommand": "npm install"
 }
+'@ | Out-File -FilePath "vercel.json" -Encoding UTF8
+
+# Verificar que es válido
+Get-Content vercel.json
