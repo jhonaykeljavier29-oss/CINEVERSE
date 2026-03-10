@@ -3,5 +3,7 @@
     { "source": "/(.*)", "destination": "/" }
   ],
   "buildCommand": "npm run build",
-  "outputDirectory": "dist/cineverse/browser"
+  "outputDirectory": "dist/cineverse/browser",
+  "devCommand": "npm run start",
+  "installCommand": "npm install"
 }
