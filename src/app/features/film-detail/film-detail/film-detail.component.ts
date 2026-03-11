@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Inject } from '@angular/core';  // ✅ Incluye Inject si lo usas
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
@@ -38,7 +38,7 @@ export class FilmDetailComponent implements OnInit {
     private route: ActivatedRoute,
     private tmdbService: TmdbService,
     private sanitizer: DomSanitizer,
-    @Inject(AuthService) private authService: AuthService,
+    private authService: AuthService,
     private listsService: ListsService
   ) {
     console.log('🎬 FilmDetailComponent inicializado');
